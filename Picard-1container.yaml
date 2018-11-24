@@ -4,14 +4,14 @@ tosca_definitions_version: cloudify_dsl_1_0
 
 imports:
   - http://www.getcloudify.org/spec/cloudify/3.1/types.yaml
-  - https://raw.githubusercontent.com/rawaqasha/e-sc-cloudify/master/esc_nodetypes.yaml
+  - https://github.com/WorkflowCenter-Repositories/Node-Relationship-Types/raw/master/esc_nodetypes.yaml
 
 inputs:
 
   input-dir:
       description: >
         The dir path of the input files  
-      default: '~/myDir/Data'
+      default: 'Input-sample/Data'
 
   docker-image: 
       description: > 
@@ -58,7 +58,7 @@ node_templates:
     interfaces:
       cloudify.interfaces.lifecycle:
         create:
-          implementation: Core-LifecycleScripts/start-inhost.sh
+          implementation: LifeCycleScripts/start-inhost.sh
           inputs:
             process:
               args: [Picard-1container]
@@ -73,7 +73,7 @@ node_templates:
     interfaces:
       cloudify.interfaces.lifecycle:
         create:
-          implementation: Core-LifecycleScripts/container-WF.sh
+          implementation: LifeCycleScripts/container-WF.sh
           inputs:
             process:
               args: [Picard-1container]
@@ -90,7 +90,7 @@ node_templates:
     interfaces:
       cloudify.interfaces.lifecycle:
         create:
-          implementation: Core-LifecycleScripts/java-install2.sh
+          implementation: LifeCycleScripts/java-install2.sh
           inputs:
             process:
               args: [container1, Picard-1container, '8']
@@ -110,7 +110,7 @@ node_templates:
     interfaces:
       cloudify.interfaces.lifecycle:
         create: 
-          implementation: Core-LifecycleScripts/task-download-single.sh
+          implementation: LifeCycleScripts/task-download-single.sh
           inputs:
             process:
              args: [Picard-1container, container1, get_property: [ImportDir, block_Url]]
@@ -120,7 +120,7 @@ node_templates:
             process:
              args: [Picard-1container, { get_input: input-dir }]
         start: 
-          implementation: Core-LifecycleScripts/task-deploy.sh
+          implementation: LifeCycleScripts/task-deploy.sh
           inputs:
             process:
              args: [Picard-1container, container1, { get_input: input-dir }]
@@ -144,12 +144,12 @@ node_templates:
     interfaces:
       cloudify.interfaces.lifecycle:
         create: 
-          implementation: Core-LifecycleScripts/task-download-single.sh
+          implementation: LifeCycleScripts/task-download-single.sh
           inputs:
             process:
              args: [Picard-1container, container1, get_property: [PickFiles, block_Url]]        
         start: 
-          implementation: Core-LifecycleScripts/task-deploy.sh
+          implementation: LifeCycleScripts/task-deploy.sh
           inputs:
             process:
              args: [Picard-1container, container1]
@@ -159,7 +159,7 @@ node_templates:
         source_interfaces:
           cloudify.interfaces.relationship_lifecycle:
             preconfigure:
-              implementation: Core-LifecycleScripts/datacopy.sh
+              implementation: LifeCycleScripts/datacopy.sh
               inputs:
                 process:
                   args: [ImportDir/imported-files, PickFiles/input-files, Picard-1container, container1]
@@ -186,7 +186,7 @@ node_templates:
         source_interfaces:
           cloudify.interfaces.relationship_lifecycle:
             preconfigure:
-              implementation: Core-LifecycleScripts/datacopy.sh
+              implementation: LifeCycleScripts/datacopy.sh
               inputs:
                 process:
                   args: [PickFiles/selected-files, PicardCleanSAM/input-SAM_BAM-files, Picard-1container, container1]
@@ -195,12 +195,12 @@ node_templates:
     interfaces:
       cloudify.interfaces.lifecycle:
         create: 
-          implementation: Core-LifecycleScripts/task-download-single.sh
+          implementation: LifeCycleScripts/task-download-single.sh
           inputs:
             process:
              args: [Picard-1container, container1, get_property: [PicardCleanSAM, block_Url]]
         start:
-          implementation: Core-LifecycleScripts/task-deploy.sh
+          implementation: LifeCycleScripts/task-deploy.sh
           inputs:
             process:
              args: [Picard-1container, container1]
@@ -227,19 +227,19 @@ node_templates:
         source_interfaces:
           cloudify.interfaces.relationship_lifecycle:
             preconfigure:
-              implementation: Core-LifecycleScripts/datacopy.sh
+              implementation: LifeCycleScripts/datacopy.sh
               inputs:
                 process:
                   args: [PicardCleanSAM/cleaned-SAM_BAM-files, Picard-Mark/input-SAM_BAM-files, Picard-1container, container1]
     interfaces:
       cloudify.interfaces.lifecycle:
         create: 
-          implementation: Core-LifecycleScripts/task-download-single.sh
+          implementation: LifeCycleScripts/task-download-single.sh
           inputs:
             process:
              args: [Picard-1container, container1, get_property: [Picard-Mark, block_Url]]
         start:
-          implementation: Core-LifecycleScripts/task-deploy.sh
+          implementation: LifeCycleScripts/task-deploy.sh
           inputs:
             process:
               args: [Picard-1container, container1]
@@ -272,19 +272,19 @@ node_templates:
         source_interfaces:
           cloudify.interfaces.relationship_lifecycle:
             preconfigure:
-              implementation: Core-LifecycleScripts/datacopy.sh
+              implementation: LifeCycleScripts/datacopy.sh
               inputs:
                 process:
                   args: [Picard-Mark/marked-SAM_BAM-file, Picard-Add/input-SAM_BAM-files, Picard-1container, container1]        
     interfaces:
       cloudify.interfaces.lifecycle:
         create: 
-          implementation: Core-LifecycleScripts/task-download-single.sh
+          implementation: LifeCycleScripts/task-download-single.sh
           inputs:
             process:
              args: [Picard-1container, container1, get_property: [Picard-Add, block_Url]]
         start:
-          implementation: Core-LifecycleScripts/task-deploy.sh
+          implementation: LifeCycleScripts/task-deploy.sh
           inputs:
             process:
               args: [Picard-1container, container1]
@@ -298,7 +298,7 @@ node_templates:
     interfaces:
       cloudify.interfaces.lifecycle:
         create:
-          implementation: Core-LifecycleScripts/Lib-install.sh
+          implementation: LifeCycleScripts/Lib-install.sh
           inputs:
             process:
               args: [container1, get_property: [SAMTools-Lib, lib_URL]]
@@ -326,19 +326,19 @@ node_templates:
         source_interfaces:
           cloudify.interfaces.relationship_lifecycle:
             preconfigure:
-              implementation: Core-LifecycleScripts/datacopy.sh
+              implementation: LifeCycleScripts/datacopy.sh
               inputs:
                 process:
                   args: [Picard-Add/output-SAM_BAM-files, SAMTools/input-BAM-files, Picard-1container, container1]        
     interfaces:
       cloudify.interfaces.lifecycle:
         create: 
-          implementation: Core-LifecycleScripts/task-download-single.sh
+          implementation: LifeCycleScripts/task-download-single.sh
           inputs:
             process:
              args: [Picard-1container, container1, get_property: [SAMTools, block_Url]]
         start:
-          implementation: Core-LifecycleScripts/task-deploy.sh
+          implementation: LifeCycleScripts/task-deploy.sh
           inputs:
             process:
               args: [Picard-1container, container1]
@@ -359,7 +359,7 @@ node_templates:
         source_interfaces:
           cloudify.interfaces.relationship_lifecycle:
             preconfigure:
-              implementation: Core-LifecycleScripts/datacopy.sh
+              implementation: LifeCycleScripts/datacopy.sh
               inputs:
                 process:
                   args: [SAMTools/index-BAI-files, ExportFiles1/file-list, Picard-1container, container1]
@@ -368,12 +368,12 @@ node_templates:
     interfaces:
       cloudify.interfaces.lifecycle:
         create: 
-          implementation: Core-LifecycleScripts/task-download-single.sh
+          implementation: LifeCycleScripts/task-download-single.sh
           inputs:
             process:
              args: [Picard-1container, container1, get_property: [ExportFiles1, block_Url]]
         start: 
-          implementation: Core-LifecycleScripts/task-deploy.sh
+          implementation: LifeCycleScripts/task-deploy.sh
           inputs:
             process:
              args: [Picard-1container, container1]
@@ -394,7 +394,7 @@ node_templates:
         source_interfaces:
           cloudify.interfaces.relationship_lifecycle:
             preconfigure:
-              implementation: Core-LifecycleScripts/datacopy.sh
+              implementation: LifeCycleScripts/datacopy.sh
               inputs:
                 process:
                   args: [Picard-Add/output-SAM_BAM-files, ExportFiles2/file-list, Picard-1container, container1]
@@ -403,12 +403,12 @@ node_templates:
     interfaces:
       cloudify.interfaces.lifecycle:
         create: 
-          implementation: Core-LifecycleScripts/task-download-single.sh
+          implementation: LifeCycleScripts/task-download-single.sh
           inputs:
             process:
              args: [Picard-1container, container1, get_property: [ExportFiles2, block_Url]]
         start: 
-          implementation: Core-LifecycleScripts/task-deploy.sh
+          implementation: LifeCycleScripts/task-deploy.sh
           inputs:
             process:
              args: [Picard-1container, container1]
@@ -418,17 +418,17 @@ node_templates:
     interfaces:
       cloudify.interfaces.lifecycle:
         create:
-          implementation: Core-LifecycleScripts/image_create.sh
+          implementation: LifeCycleScripts/image_create.sh
           inputs:
             process:
              args: [container1, { get_input: create_image}, Picard-1container]
         configure:
-          implementation: Core-LifecycleScripts/containers-clean.sh
+          implementation: LifeCycleScripts/containers-clean.sh
           inputs:
             process:
               args: []
         start:
-          implementation: Core-LifecycleScripts/final-inhost.sh
+          implementation: LifeCycleScripts/final-inhost.sh
           inputs:
             process:
               args: [Picard-1container]
